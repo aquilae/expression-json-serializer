@@ -10,17 +10,19 @@ namespace Aq.ExpressionJsonSerializer
 {
     internal sealed partial class Deserializer
     {
-        public static Expression Deserialize(Assembly assembly, JToken token)
+        public static Expression Deserialize(Assembly assembly, JToken token, JsonSerializer serializer)
         {
-            var d = new Deserializer(assembly);
+            var d = new Deserializer(assembly, serializer);
             return d.Expression(token);
         }
 
         private readonly Assembly _assembly;
+        private readonly JsonSerializer _serializer;
 
-        private Deserializer(Assembly assembly)
+        private Deserializer(Assembly assembly, JsonSerializer serializer)
         {
             this._assembly = assembly;
+            this._serializer = serializer;
         }
 
         private object Deserialize(JToken token, System.Type type)

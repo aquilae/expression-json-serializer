@@ -25,33 +25,35 @@ namespace Aq.ExpressionJsonSerializer
             var typeName = this.Prop(obj, "typeName", t => t.Value<string>());
             var generic = this.Prop(obj, "genericArguments", this.Enumerable(this.Type));
 
-            Dictionary<string, Dictionary<string, Type>> assemblies;
-            if (!TypeCache.TryGetValue(this._assembly, out assemblies)) {
-                assemblies = new Dictionary<string, Dictionary<string, Type>>();
-                TypeCache[this._assembly] = assemblies;
-            }
+             
+            //Dictionary<string, Dictionary<string, Type>> assemblies;
+            //if (!TypeCache.TryGetValue(this._assembly, out assemblies)) {
+            //    assemblies = new Dictionary<string, Dictionary<string, Type>>();
+            //    TypeCache[this._assembly] = assemblies;
+            //}
 
-            Dictionary<string, Type> types;
-            if (!assemblies.TryGetValue(assemblyName, out types)) {
-                types = new Dictionary<string, Type>();
-                assemblies[assemblyName] = types;
-            }
+            //Dictionary<string, Type> types;
+            //if (!assemblies.TryGetValue(assemblyName, out types)) {
+            //    types = new Dictionary<string, Type>();
+            //    assemblies[assemblyName] = types;
+            //}
 
-            Type type;
-            if (!types.TryGetValue(typeName, out type)) {
-                type = this._assembly.GetType(typeName);
-                if (type == null) {
-                    var assembly = Assembly.Load(new AssemblyName(assemblyName));
-                    type = assembly.GetType(typeName);
-                }
-                if (type == null) {
-                    throw new Exception(
-                        "Type could not be found: "
-                        + assemblyName + "." + typeName
-                    );
-                }
-                types[typeName] = type;
-            }
+            Type type = _serializer.Binder.BindToType(assemblyName, typeName);
+
+            //if (!types.TryGetValue(typeName, out type)) {
+            //    type = this._assembly.GetType(typeName);
+            //    if (type == null) {
+            //        var assembly = Assembly.Load(new AssemblyName(assemblyName));
+            //        type = assembly.GetType(typeName);
+            //    }
+            //    if (type == null) {
+            //        throw new Exception(
+            //            "Type could not be found: "
+            //            + assemblyName + "." + typeName
+            //        );
+            //    }
+            //    types[typeName] = type;
+            //}
 
             if (generic != null && type.IsGenericTypeDefinition) {
                 type = type.MakeGenericType(generic.ToArray());

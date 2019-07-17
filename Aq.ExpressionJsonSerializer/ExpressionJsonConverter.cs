@@ -31,7 +31,7 @@ namespace Aq.ExpressionJsonSerializer
             object existingValue, JsonSerializer serializer)
         {
             return Deserializer.Deserialize(
-                this._assembly, JToken.ReadFrom(reader)
+                this._assembly, JToken.ReadFrom(reader), serializer
             );
         }
 

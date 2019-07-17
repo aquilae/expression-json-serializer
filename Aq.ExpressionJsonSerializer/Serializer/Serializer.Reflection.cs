@@ -22,17 +22,18 @@ namespace Aq.ExpressionJsonSerializer
             else {
                 Tuple<string, string, Type[]> tuple;
                 if (!TypeCache.TryGetValue(type, out tuple)) {
-                    var assemblyName = type.Assembly.FullName;
                     if (type.IsGenericType) {
                         var def = type.GetGenericTypeDefinition();
+                        _serializer.Binder.BindToName(def, out string assemblyName, out string typeName);
                         tuple = new Tuple<string, string, Type[]>(
-                            def.Assembly.FullName, def.FullName,
+                            assemblyName, typeName,
                             type.GetGenericArguments()
                         );
                     }
                     else {
+                        _serializer.Binder.BindToName(type, out string assemblyName, out string typeName);
                         tuple = new Tuple<string, string, Type[]>(
-                            assemblyName, type.FullName, null);
+                            assemblyName, typeName, null);
                     }
                     TypeCache[type] = tuple;
                 }

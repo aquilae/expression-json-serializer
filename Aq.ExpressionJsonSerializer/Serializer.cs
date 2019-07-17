@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Aq.ExpressionJsonSerializer
 {
@@ -19,11 +20,20 @@ namespace Aq.ExpressionJsonSerializer
 
         private readonly JsonWriter _writer;
         private readonly JsonSerializer _serializer;
+        private readonly NamingStrategy _namingStrategy;
 
         private Serializer(JsonWriter writer, JsonSerializer serializer)
         {
             this._writer = writer;
             this._serializer = serializer;
+            if(serializer.ContractResolver is DefaultContractResolver)
+            {
+                this._namingStrategy = ((DefaultContractResolver)serializer.ContractResolver).NamingStrategy;
+            }
+            else
+            {
+                this._namingStrategy = new DefaultNamingStrategy();
+            }
         }
 
         private Action Serialize(object value, System.Type type)
@@ -33,26 +43,32 @@ namespace Aq.ExpressionJsonSerializer
 
         private void Prop(string name, bool value)
         {
+            name = _namingStrategy.GetPropertyName(name, false);
             this._writer.WritePropertyName(name);
             this._writer.WriteValue(value);
         }
 
         private void Prop(string name, int value)
         {
-            this._writer.WritePropertyName(name);
+            this._writer.WritePropertyName(GetPropertyName(name));
             this._writer.WriteValue(value);
         }
 
         private void Prop(string name, string value)
         {
-            this._writer.WritePropertyName(name);
+            this._writer.WritePropertyName(GetPropertyName(name));
             this._writer.WriteValue(value);
         }
 
         private void Prop(string name, Action valueWriter)
         {
-            this._writer.WritePropertyName(name);
+            this._writer.WritePropertyName(GetPropertyName(name));
             valueWriter();
+        }
+
+        private string GetPropertyName(string name)
+        {
+            return _namingStrategy?.GetPropertyName(name, false) ?? name;
         }
 
         private Action Enum<TEnum>(TEnum value)
