@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
         private NewExpression NewExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var constructor = this.Prop(obj, "constructor", this.Constructor);
-            var arguments = this.Prop(obj, "arguments", this.Enumerable(this.Expression));
-            var members = this.Prop(obj, "members", this.Enumerable(this.Member));
+            var constructor = this.Prop(obj, _properties.Constructor, this.Constructor);
+            var arguments = this.Prop(obj, _properties.Arguments, this.Enumerable(this.Expression));
+            var members = this.Prop(obj, _properties.Members, this.Enumerable(this.Member));
 
             switch (nodeType) {
                 case ExpressionType.New:

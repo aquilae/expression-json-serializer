@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as NewArrayExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "newArray");
-            this.Prop("elementType", this.Type(expression.Type.GetElementType()));
-            this.Prop("expressions", this.Enumerable(expression.Expressions, this.Expression));
+            this.Prop(_properties.TypeName, "newArray");
+            this.Prop(_properties.ElementType, this.Type(expression.Type.GetElementType()));
+            this.Prop(_properties.Expressions, this.Enumerable(expression.Expressions, this.Expression));
 
             return true;
         }

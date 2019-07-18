@@ -11,10 +11,14 @@ namespace Aq.ExpressionJsonSerializer
 
         private Action Type(Type type)
         {
-            return () => this.TypeInternal(type);
+            if (_nestedTypes)
+                return () => this.TypeNestedInternal(type);
+            else
+                return () => this.TypeFlatInternal(type);
+
         }
 
-        private void TypeInternal(Type type)
+        private void TypeNestedInternal(Type type)
         {
             if (type == null) {
                 this._writer.WriteNull();
@@ -24,14 +28,14 @@ namespace Aq.ExpressionJsonSerializer
                 if (!TypeCache.TryGetValue(type, out tuple)) {
                     if (type.IsGenericType) {
                         var def = type.GetGenericTypeDefinition();
-                        _serializer.Binder.BindToName(def, out string assemblyName, out string typeName);
+                        _serializer.SerializationBinder.BindToName(def, out string assemblyName, out string typeName);
                         tuple = new Tuple<string, string, Type[]>(
                             assemblyName, typeName,
                             type.GetGenericArguments()
                         );
                     }
                     else {
-                        _serializer.Binder.BindToName(type, out string assemblyName, out string typeName);
+                        _serializer.SerializationBinder.BindToName(type, out string assemblyName, out string typeName);
                         tuple = new Tuple<string, string, Type[]>(
                             assemblyName, typeName, null);
                     }
@@ -39,12 +43,26 @@ namespace Aq.ExpressionJsonSerializer
                 }
 
                 this._writer.WriteStartObject();
-                this.Prop("assemblyName", tuple.Item1);
-                this.Prop("typeName", tuple.Item2);
-                this.Prop("genericArguments", this.Enumerable(tuple.Item3, this.Type));
+                this.Prop(_properties.AssemblyName, tuple.Item1);
+                this.Prop(_properties.TypeName, tuple.Item2);
+                this.Prop(_properties.GenericArguments, this.Enumerable(tuple.Item3, this.Type));
                 this._writer.WriteEndObject();
             }
         }
+
+        private void TypeFlatInternal(Type type)
+        {
+            if (type == null)
+            {
+                _writer.WriteNull();
+            }
+            else
+            {
+                _serializer.SerializationBinder.BindToName(type, out string assemblyName, out string typeName);
+                _writer.WriteValue(typeName + "," + assemblyName);
+            }
+        }
+
 
         private Action Constructor(ConstructorInfo constructor)
         {
@@ -58,9 +76,9 @@ namespace Aq.ExpressionJsonSerializer
             }
             else {
                 this._writer.WriteStartObject();
-                this.Prop("type", this.Type(constructor.DeclaringType));
-                this.Prop("name", constructor.Name);
-                this.Prop("signature", constructor.ToString());
+                this.Prop(_properties.Type, this.Type(constructor.DeclaringType));
+                this.Prop(_properties.Name, constructor.Name);
+                this.Prop(_properties.Signature, constructor.ToString());
                 this._writer.WriteEndObject();
             }
         }
@@ -81,15 +99,15 @@ namespace Aq.ExpressionJsonSerializer
                     var meth = method.GetGenericMethodDefinition();
                     var generic = method.GetGenericArguments();
 
-                    this.Prop("type", this.Type(meth.DeclaringType));
-                    this.Prop("name", meth.Name);
-                    this.Prop("signature", meth.ToString());
-                    this.Prop("generic", this.Enumerable(generic, this.Type));
+                    this.Prop(_properties.Type, this.Type(meth.DeclaringType));
+                    this.Prop(_properties.Name, meth.Name);
+                    this.Prop(_properties.Signature, meth.ToString());
+                    this.Prop(_properties.Generic, this.Enumerable(generic, this.Type));
                 }
                 else {
-                    this.Prop("type", this.Type(method.DeclaringType));
-                    this.Prop("name", method.Name);
-                    this.Prop("signature", method.ToString());
+                    this.Prop(_properties.Type, this.Type(method.DeclaringType));
+                    this.Prop(_properties.Name, method.Name);
+                    this.Prop(_properties.Signature, method.ToString());
                 }
                 this._writer.WriteEndObject();
             }
@@ -107,9 +125,9 @@ namespace Aq.ExpressionJsonSerializer
             }
             else {
                 this._writer.WriteStartObject();
-                this.Prop("type", this.Type(property.DeclaringType));
-                this.Prop("name", property.Name);
-                this.Prop("signature", property.ToString());
+                this.Prop(_properties.Type, this.Type(property.DeclaringType));
+                this.Prop(_properties.Name, property.Name);
+                this.Prop(_properties.Signature, property.ToString());
                 this._writer.WriteEndObject();
             }
         }
@@ -126,10 +144,10 @@ namespace Aq.ExpressionJsonSerializer
             }
             else {
                 this._writer.WriteStartObject();
-                this.Prop("type", this.Type(member.DeclaringType));
-                this.Prop("memberType", (int) member.MemberType);
-                this.Prop("name", member.Name);
-                this.Prop("signature", member.ToString());
+                this.Prop(_properties.Type, this.Type(member.DeclaringType));
+                this.Prop(_properties.MemberType, (int) member.MemberType);
+                this.Prop(_properties.Name, member.Name);
+                this.Prop(_properties.Signature, member.ToString());
                 this._writer.WriteEndObject();
             }
         }

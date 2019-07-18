@@ -20,8 +20,8 @@ namespace Aq.ExpressionJsonSerializer
                 this._parameterExpressions[expression] = name;
             }
 
-            this.Prop("typeName", "parameter");
-            this.Prop("name", name);
+            this.Prop(_properties.TypeName, "parameter");
+            this.Prop(_properties.Name, name);
 
             return true;
         }

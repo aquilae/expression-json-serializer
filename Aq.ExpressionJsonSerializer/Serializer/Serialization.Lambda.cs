@@ -10,11 +10,11 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as LambdaExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "lambda");
-            this.Prop("name", expression.Name);
-            this.Prop("parameters", this.Enumerable(expression.Parameters, this.Expression));
-            this.Prop("body", this.Expression(expression.Body));
-            this.Prop("tailCall", expression.TailCall);
+            this.Prop(_properties.TypeName, "lambda");
+            this.Prop(_properties.Name, expression.Name);
+            this.Prop(_properties.Parameters, this.Enumerable(expression.Parameters, this.Expression));
+            this.Prop(_properties.Body, this.Expression(expression.Body));
+            this.Prop(_properties.TailCall, expression.TailCall);
 
             return true;
         }

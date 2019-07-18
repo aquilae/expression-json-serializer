@@ -5,26 +5,31 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Aq.ExpressionJsonSerializer
 {
     internal sealed partial class Deserializer
     {
-        public static Expression Deserialize(Assembly assembly, JToken token, JsonSerializer serializer)
+        public static Expression Deserialize(JToken token, JsonSerializer serializer,
+            PropertyNames properties, bool nestedTypes)
         {
-            var d = new Deserializer(assembly, serializer);
+            var d = new Deserializer(serializer, properties, nestedTypes);
             return d.Expression(token);
         }
 
-        private readonly Assembly _assembly;
         private readonly JsonSerializer _serializer;
+        private readonly PropertyNames _properties;
+        private bool _nestedTypes;
 
-        private Deserializer(Assembly assembly, JsonSerializer serializer)
+        private Deserializer(JsonSerializer serializer, PropertyNames properties,
+            bool nestedTypes)
         {
-            this._assembly = assembly;
             this._serializer = serializer;
+            this._properties = properties;
+            this._nestedTypes = nestedTypes;
         }
-
+    
         private object Deserialize(JToken token, System.Type type)
         {
             return token.ToObject(type);
@@ -64,9 +69,9 @@ namespace Aq.ExpressionJsonSerializer
             }
 
             var obj = (JObject) token;
-            var nodeType = this.Prop(obj, "nodeType", this.Enum<ExpressionType>);
-            var type = this.Prop(obj, "type", this.Type);
-            var typeName = this.Prop(obj, "typeName", t => t.Value<string>());
+            var nodeType = this.Prop(obj, _properties.NodeType, this.Enum<ExpressionType>);
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var typeName = this.Prop(obj, _properties.TypeName, t => t.Value<string>());
 
             switch (typeName) {
                 case "binary":              return this.BinaryExpression(nodeType, type, obj);

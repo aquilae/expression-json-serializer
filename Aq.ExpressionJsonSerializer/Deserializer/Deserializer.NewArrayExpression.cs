@@ -10,8 +10,8 @@ namespace Aq.ExpressionJsonSerializer
         private NewArrayExpression NewArrayExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var elementType = this.Prop(obj, "elementType", this.Type);
-            var expressions = this.Prop(obj, "expressions", this.Enumerable(this.Expression));
+            var elementType = this.Prop(obj, _properties.ElementType, this.Type);
+            var expressions = this.Prop(obj, _properties.Expressions, this.Enumerable(this.Expression));
 
             switch (nodeType) {
                 case ExpressionType.NewArrayInit:

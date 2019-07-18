@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -12,28 +13,26 @@ namespace Aq.ExpressionJsonSerializer
         public static void Serialize(
             JsonWriter writer,
             JsonSerializer serializer,
-            Expression expression)
+            PropertyNames properties,
+            Expression expression,
+            bool nestedTypes)
         {
-            var s = new Serializer(writer, serializer);
+            var s = new Serializer(writer, serializer, properties, nestedTypes);
             s.ExpressionInternal(expression);
         }
 
         private readonly JsonWriter _writer;
         private readonly JsonSerializer _serializer;
-        private readonly NamingStrategy _namingStrategy;
+        private readonly PropertyNames _properties;
+        private readonly bool _nestedTypes;
 
-        private Serializer(JsonWriter writer, JsonSerializer serializer)
+        private Serializer(JsonWriter writer, JsonSerializer serializer,
+            PropertyNames properties, bool nestedTypes)
         {
             this._writer = writer;
             this._serializer = serializer;
-            if(serializer.ContractResolver is DefaultContractResolver)
-            {
-                this._namingStrategy = ((DefaultContractResolver)serializer.ContractResolver).NamingStrategy;
-            }
-            else
-            {
-                this._namingStrategy = new DefaultNamingStrategy();
-            }
+            this._properties = properties;
+            this._nestedTypes = nestedTypes;
         }
 
         private Action Serialize(object value, System.Type type)
@@ -42,33 +41,27 @@ namespace Aq.ExpressionJsonSerializer
         }
 
         private void Prop(string name, bool value)
-        {
-            name = _namingStrategy.GetPropertyName(name, false);
+        {            
             this._writer.WritePropertyName(name);
             this._writer.WriteValue(value);
         }
 
         private void Prop(string name, int value)
         {
-            this._writer.WritePropertyName(GetPropertyName(name));
+            this._writer.WritePropertyName(name);
             this._writer.WriteValue(value);
         }
 
         private void Prop(string name, string value)
         {
-            this._writer.WritePropertyName(GetPropertyName(name));
+            this._writer.WritePropertyName(name);
             this._writer.WriteValue(value);
         }
 
         private void Prop(string name, Action valueWriter)
         {
-            this._writer.WritePropertyName(GetPropertyName(name));
+            this._writer.WritePropertyName(name);
             valueWriter();
-        }
-
-        private string GetPropertyName(string name)
-        {
-            return _namingStrategy?.GetPropertyName(name, false) ?? name;
         }
 
         private Action Enum<TEnum>(TEnum value)
@@ -118,8 +111,8 @@ namespace Aq.ExpressionJsonSerializer
 
             this._writer.WriteStartObject();
 
-            this.Prop("nodeType", this.Enum(expression.NodeType));
-            this.Prop("type", this.Type(expression.Type));
+            this.Prop(_properties.NodeType, this.Enum(expression.NodeType));
+            this.Prop(_properties.Type, this.Type(expression.Type));
 
             if (this.BinaryExpression(expression)) { goto end; }
             if (this.BlockExpression(expression)) { goto end; }

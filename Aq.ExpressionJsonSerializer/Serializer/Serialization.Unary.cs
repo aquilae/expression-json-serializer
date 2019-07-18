@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as UnaryExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "unary");
-            this.Prop("operand", this.Expression(expression.Operand));
-            this.Prop("method", this.Method(expression.Method));
+            this.Prop(_properties.TypeName, "unary");
+            this.Prop(_properties.Operand, this.Expression(expression.Operand));
+            this.Prop(_properties.Method, this.Method(expression.Method));
 
             return true;
         }

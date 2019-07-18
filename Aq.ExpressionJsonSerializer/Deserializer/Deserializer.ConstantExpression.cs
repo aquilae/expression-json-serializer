@@ -12,14 +12,14 @@ namespace Aq.ExpressionJsonSerializer
         {
             object value;
 
-            var valueTok = this.Prop(obj, "value");
+            var valueTok = this.Prop(obj, _properties.Value);
             if (valueTok == null || valueTok.Type == JTokenType.Null) {
                 value = null;
             }
             else {
                 var valueObj = (JObject) valueTok;
-                var valueType = this.Prop(valueObj, "type", this.Type);
-                value = this.Deserialize(this.Prop(valueObj, "value"), valueType);
+                var valueType = this.Prop(valueObj, _properties.Type, this.Type);
+                value = this.Deserialize(this.Prop(valueObj, _properties.Value), valueType);
             }
 
             switch (nodeType) {

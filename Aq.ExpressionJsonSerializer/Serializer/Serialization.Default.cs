@@ -10,7 +10,7 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as DefaultExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "default");
+            this.Prop(_properties.TypeName, "default");
 
             return true;
         }

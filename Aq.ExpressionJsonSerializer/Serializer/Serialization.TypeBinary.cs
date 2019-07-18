@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as TypeBinaryExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "typeBinary");
-            this.Prop("expression", this.Expression(expression.Expression));
-            this.Prop("typeOperand", this.Type(expression.TypeOperand));
+            this.Prop(_properties.TypeName, "typeBinary");
+            this.Prop(_properties.Expression, this.Expression(expression.Expression));
+            this.Prop(_properties.TypeOperand, this.Type(expression.TypeOperand));
 
             return true;
         }

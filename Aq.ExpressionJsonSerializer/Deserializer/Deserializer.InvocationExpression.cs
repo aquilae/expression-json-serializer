@@ -10,8 +10,8 @@ namespace Aq.ExpressionJsonSerializer
         private InvocationExpression InvocationExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var expression = this.Prop(obj, "expression", this.Expression);
-            var arguments = this.Prop(obj, "arguments", this.Enumerable(this.Expression));
+            var expression = this.Prop(obj, _properties.Expression, this.Expression);
+            var arguments = this.Prop(obj, _properties.Arguments, this.Enumerable(this.Expression));
             
             switch (nodeType) {
                 case ExpressionType.Invoke:

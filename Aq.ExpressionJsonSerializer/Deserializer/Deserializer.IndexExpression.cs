@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
         private IndexExpression IndexExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var expression = this.Prop(obj, "object", this.Expression);
-            var indexer = this.Prop(obj, "indexer", this.Property);
-            var arguments = this.Prop(obj, "arguments", this.Enumerable(this.Expression));
+            var expression = this.Prop(obj, _properties.Object, this.Expression);
+            var indexer = this.Prop(obj, _properties.Indexer, this.Property);
+            var arguments = this.Prop(obj, _properties.Arguments, this.Enumerable(this.Expression));
 
             switch (nodeType) {
                 case ExpressionType.Index:

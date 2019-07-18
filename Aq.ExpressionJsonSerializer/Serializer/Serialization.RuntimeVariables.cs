@@ -10,8 +10,8 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as RuntimeVariablesExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "runtimeVariables");
-            this.Prop("variables", this.Enumerable(expression.Variables, this.Expression));
+            this.Prop(_properties.TypeName, "runtimeVariables");
+            this.Prop(_properties.Variables, this.Enumerable(expression.Variables, this.Expression));
 
             return true;
         }

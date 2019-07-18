@@ -10,10 +10,10 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as NewExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "new");
-            this.Prop("constructor", this.Constructor(expression.Constructor));
-            this.Prop("arguments", this.Enumerable(expression.Arguments, this.Expression));
-            this.Prop("members", this.Enumerable(expression.Members, this.Member));
+            this.Prop(_properties.TypeName, "new");
+            this.Prop(_properties.Constructor, this.Constructor(expression.Constructor));
+            this.Prop(_properties.Arguments, this.Enumerable(expression.Arguments, this.Expression));
+            this.Prop(_properties.Members, this.Enumerable(expression.Members, this.Member));
 
             return true;
         }

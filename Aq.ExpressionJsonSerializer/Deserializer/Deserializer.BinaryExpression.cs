@@ -10,11 +10,11 @@ namespace Aq.ExpressionJsonSerializer
         private BinaryExpression BinaryExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var left = this.Prop(obj, "left", this.Expression);
-            var right = this.Prop(obj, "right", this.Expression);
-            var method = this.Prop(obj, "method", this.Method);
-            var conversion = this.Prop(obj, "conversion", this.LambdaExpression);
-            var liftToNull = this.Prop(obj, "liftToNull").Value<bool>();
+            var left = this.Prop(obj, _properties.Left, this.Expression);
+            var right = this.Prop(obj, _properties.Right, this.Expression);
+            var method = this.Prop(obj, _properties.Method, this.Method);
+            var conversion = this.Prop(obj, _properties.Conversion, this.LambdaExpression);
+            var liftToNull = this.Prop(obj, _properties.LiftToNull).Value<bool>();
 
             switch (nodeType) {
                 case ExpressionType.Add: return Expr.Add(left, right, method);

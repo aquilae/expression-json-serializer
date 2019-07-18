@@ -14,7 +14,7 @@ namespace Aq.ExpressionJsonSerializer
         private ParameterExpression ParameterExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var name = this.Prop(obj, "name", t => t.Value<string>());
+            var name = this.Prop(obj, _properties.Name, t => t.Value<string>());
 
             ParameterExpression result;
             if (_parameterExpressions.TryGetValue(name, out result)) {
@@ -40,9 +40,9 @@ namespace Aq.ExpressionJsonSerializer
             }
 
             var obj = (JObject) token;
-            var nodeType = this.Prop(obj, "nodeType", this.Enum<ExpressionType>);
-            var type = this.Prop(obj, "type", this.Type);
-            var typeName = this.Prop(obj, "typeName", t => t.Value<string>());
+            var nodeType = this.Prop(obj, _properties.NodeType, this.Enum<ExpressionType>);
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var typeName = this.Prop(obj, _properties.TypeName, t => t.Value<string>());
 
             if (typeName != "parameter") { return null; }
 

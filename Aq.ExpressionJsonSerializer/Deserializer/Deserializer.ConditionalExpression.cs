@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
         private ConditionalExpression ConditionalExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var test = this.Prop(obj, "test", this.Expression);
-            var ifTrue = this.Prop(obj, "ifTrue", this.Expression);
-            var ifFalse = this.Prop(obj, "ifFalse", this.Expression);
+            var test = this.Prop(obj, _properties.Test, this.Expression);
+            var ifTrue = this.Prop(obj, _properties.IfTrue, this.Expression);
+            var ifFalse = this.Prop(obj, _properties.IfFalse, this.Expression);
 
             switch (nodeType) {
                 case ExpressionType.Conditional:

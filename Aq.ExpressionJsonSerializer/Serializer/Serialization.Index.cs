@@ -10,10 +10,10 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as IndexExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "index");
-            this.Prop("object", this.Expression(expression.Object));
-            this.Prop("indexer", this.Property(expression.Indexer));
-            this.Prop("arguments", this.Enumerable(expression.Arguments, this.Expression));
+            this.Prop(_properties.TypeName, "index");
+            this.Prop(_properties.Object, this.Expression(expression.Object));
+            this.Prop(_properties.Indexer, this.Property(expression.Indexer));
+            this.Prop(_properties.Arguments, this.Enumerable(expression.Arguments, this.Expression));
 
             return true;
         }

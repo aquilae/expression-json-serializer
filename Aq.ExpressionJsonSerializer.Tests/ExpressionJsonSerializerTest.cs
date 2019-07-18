@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Aq.ExpressionJsonSerializer.Tests
 {
@@ -202,6 +203,82 @@ namespace Aq.ExpressionJsonSerializer.Tests
             TestExpression((Expression<Func<Context, int>>) (c => (int) c.Method3()));
         }
 
+        [TestMethod]
+        public void NestedTypeSerializer()
+        {
+            var settings = new JsonSerializerSettings();
+            settings.Converters.Add(new ExpressionJsonConverter { NestedTypeSerialization = true });
+
+            Expression<Func<Context, bool>> source = (c) => typeof(IOrderedEnumerable<string>) == c.GetType();
+
+            // Serialise
+            var json = JsonConvert.SerializeObject(source, settings);
+            // Check for nested structure
+            Assert.IsTrue(json.IndexOf("\"GenericArguments\":") > -1);
+
+            // Check we can deserialise
+            var target = JsonConvert.DeserializeObject<LambdaExpression>(json, settings);
+
+            // Test the expression now
+            var context = new Context();
+            Assert.AreEqual(
+               ExpressionResult(source, context),
+               ExpressionResult(target, context)
+           );
+        }
+
+
+        [TestMethod]
+        public void NamingStrategy()
+        {
+            var settings = new JsonSerializerSettings();
+            settings.Converters.Add(new ExpressionJsonConverter { NamingStrategy = new CamelCaseNamingStrategy() });
+
+            Expression<Func<Context, bool>> source = (c) => typeof(IOrderedEnumerable<string>) == c.GetType();
+
+            // Serialise
+            var json = JsonConvert.SerializeObject(source, settings);
+            // Check for camel case
+            Assert.IsTrue(json.StartsWith("{\"nodeType\":"));
+
+            // Try it with indirect naming stratgey
+            settings = new JsonSerializerSettings { ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy()} };
+            settings.Converters.Add(new ExpressionJsonConverter());
+
+            // Serialise
+            json = JsonConvert.SerializeObject(source, settings);
+            // Check for camel case
+            Assert.IsTrue(json.StartsWith("{\"nodeType\":"));
+
+            // Check we can deserialise
+            var target = JsonConvert.DeserializeObject<LambdaExpression>(json, settings);
+
+            // Test the expression now
+            var context = new Context();
+            Assert.AreEqual(
+               ExpressionResult(source, context),
+               ExpressionResult(target, context)
+           );
+        }
+
+        [TestMethod]
+        public void UsesSerialisationBinder()
+        {
+            var settings = new JsonSerializerSettings { SerializationBinder = new StubBinder() };
+            settings.Converters.Add(new ExpressionJsonConverter());
+
+            Expression<Func<Context, bool>> source = (c) => typeof(IOrderedEnumerable<string>) == c.GetType();
+
+            // Serialise
+            var json = JsonConvert.SerializeObject(source, settings);
+            // Check for stub type name
+            Assert.IsTrue(json.IndexOf("XXXOOO") > -1);
+
+            // If we don't get an exception, the stub strings have been removed successfully
+            var target = JsonConvert.DeserializeObject<LambdaExpression>(json, settings);
+
+        }
+
         private sealed class Context
         {
             public int A;
@@ -239,9 +316,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
             };
 
             var settings = new JsonSerializerSettings();
-            settings.Converters.Add(new ExpressionJsonConverter(
-                Assembly.GetAssembly(typeof (ExpressionJsonSerializerTest))
-            ));
+            settings.Converters.Add(new ExpressionJsonConverter());
 
             var json = JsonConvert.SerializeObject(source, settings);
             var target = JsonConvert.DeserializeObject<LambdaExpression>(json, settings);
@@ -256,5 +331,6 @@ namespace Aq.ExpressionJsonSerializer.Tests
         {
             return JsonConvert.SerializeObject(expr.Compile().DynamicInvoke(context));
         }
+
     }
 }

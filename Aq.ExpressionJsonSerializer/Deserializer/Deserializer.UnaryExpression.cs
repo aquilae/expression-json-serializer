@@ -10,8 +10,8 @@ namespace Aq.ExpressionJsonSerializer
         private UnaryExpression UnaryExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var operand = this.Prop(obj, "operand", this.Expression);
-            var method = this.Prop(obj, "method", this.Method);
+            var operand = this.Prop(obj, _properties.Operand, this.Expression);
+            var method = this.Prop(obj, _properties.Method, this.Method);
             
             switch (nodeType) {
                 case ExpressionType.ArrayLength: return Expr.ArrayLength(operand);

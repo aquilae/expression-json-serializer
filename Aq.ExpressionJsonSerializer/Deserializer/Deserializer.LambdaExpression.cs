@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
         private LambdaExpression LambdaExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var body = this.Prop(obj, "body", this.Expression);
-            var tailCall = this.Prop(obj, "tailCall").Value<bool>();
-            var parameters = this.Prop(obj, "parameters", this.Enumerable(this.ParameterExpression));
+            var body = this.Prop(obj, _properties.Body, this.Expression);
+            var tailCall = this.Prop(obj, _properties.TailCall).Value<bool>();
+            var parameters = this.Prop(obj, _properties.Parameters, this.Enumerable(this.ParameterExpression));
 
             switch (nodeType) {
                 case ExpressionType.Lambda:
@@ -29,9 +29,9 @@ namespace Aq.ExpressionJsonSerializer
             }
 
             var obj = (JObject) token;
-            var nodeType = this.Prop(obj, "nodeType", this.Enum<ExpressionType>);
-            var type = this.Prop(obj, "type", this.Type);
-            var typeName = this.Prop(obj, "typeName", t => t.Value<string>());
+            var nodeType = this.Prop(obj, _properties.NodeType, this.Enum<ExpressionType>);
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var typeName = this.Prop(obj, _properties.TypeName, t => t.Value<string>());
 
             if (typeName != "lambda") { return null; }
 

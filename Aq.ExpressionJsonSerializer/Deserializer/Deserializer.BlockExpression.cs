@@ -10,8 +10,8 @@ namespace Aq.ExpressionJsonSerializer
         private BlockExpression BlockExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var expressions = this.Prop(obj, "expressions", this.Enumerable(this.Expression));
-            var variables = this.Prop(obj, "variables", this.Enumerable(this.ParameterExpression));
+            var expressions = this.Prop(obj, _properties.Expressions, this.Enumerable(this.Expression));
+            var variables = this.Prop(obj, _properties.Variables, this.Enumerable(this.ParameterExpression));
 
             switch (nodeType) {
                 case ExpressionType.Block:

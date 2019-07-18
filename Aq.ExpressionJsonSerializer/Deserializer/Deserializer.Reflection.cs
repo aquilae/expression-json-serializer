@@ -8,78 +8,83 @@ namespace Aq.ExpressionJsonSerializer
 {
     partial class Deserializer
     {
-        private static readonly Dictionary<Assembly, Dictionary<string, Dictionary<string, Type>>>
-            TypeCache = new Dictionary<Assembly, Dictionary<string, Dictionary<string, Type>>>();
 
         private static readonly Dictionary<Type, Dictionary<string, Dictionary<string, ConstructorInfo>>>
             ConstructorCache = new Dictionary<Type, Dictionary<string, Dictionary<string, ConstructorInfo>>>();
 
         private Type Type(JToken token)
         {
-            if (token == null || token.Type != JTokenType.Object) {
-                return null;
+            
+            switch(token?.Type)
+            {
+                case JTokenType.Object:
+                    return TypeNested(token);
+                case JTokenType.String:
+                    return TypeFlat(token);
+                default:
+                    return null;
             }
 
-            var obj = (JObject) token;
-            var assemblyName = this.Prop(obj, "assemblyName", t => t.Value<string>());
-            var typeName = this.Prop(obj, "typeName", t => t.Value<string>());
-            var generic = this.Prop(obj, "genericArguments", this.Enumerable(this.Type));
+        }
 
-             
-            //Dictionary<string, Dictionary<string, Type>> assemblies;
-            //if (!TypeCache.TryGetValue(this._assembly, out assemblies)) {
-            //    assemblies = new Dictionary<string, Dictionary<string, Type>>();
-            //    TypeCache[this._assembly] = assemblies;
-            //}
+        private Type TypeNested(JToken token)
+        {
+            var obj = (JObject)token;
+            var assemblyName = this.Prop(obj, _properties.AssemblyName, t => t.Value<string>());
+            var typeName = this.Prop(obj, _properties.TypeName, t => t.Value<string>());
+            var generic = this.Prop(obj, _properties.GenericArguments, this.Enumerable(this.Type));
 
-            //Dictionary<string, Type> types;
-            //if (!assemblies.TryGetValue(assemblyName, out types)) {
-            //    types = new Dictionary<string, Type>();
-            //    assemblies[assemblyName] = types;
-            //}
+            Type type = _serializer.SerializationBinder.BindToType(assemblyName, typeName);
 
-            Type type = _serializer.Binder.BindToType(assemblyName, typeName);
-
-            //if (!types.TryGetValue(typeName, out type)) {
-            //    type = this._assembly.GetType(typeName);
-            //    if (type == null) {
-            //        var assembly = Assembly.Load(new AssemblyName(assemblyName));
-            //        type = assembly.GetType(typeName);
-            //    }
-            //    if (type == null) {
-            //        throw new Exception(
-            //            "Type could not be found: "
-            //            + assemblyName + "." + typeName
-            //        );
-            //    }
-            //    types[typeName] = type;
-            //}
-
-            if (generic != null && type.IsGenericTypeDefinition) {
+            if (type == null)
+            {
+                throw new Exception(
+                    "Type could not be found: "
+                    + typeName + "," + assemblyName
+                );
+            }
+            
+            if (generic != null && type.IsGenericTypeDefinition)
+            {
                 type = type.MakeGenericType(generic.ToArray());
             }
 
             return type;
         }
 
+        private Type TypeFlat(JToken token)
+        {
+            var val = token.Value<string>();
+            int rbracket = val.LastIndexOf(']');
+            if (rbracket < 0)
+                rbracket = 0;
+            int comma = val.IndexOf(',', rbracket);
+            string typeName = val.Substring(0, comma);
+            string assemblyName = val.Substring(comma + 1);
+            Type type = _serializer.SerializationBinder.BindToType(assemblyName, typeName);
+            return type;
+        }
+
         private ConstructorInfo Constructor(JToken token)
         {
-            if (token == null || token.Type != JTokenType.Object) {
+            if (token == null || token.Type != JTokenType.Object)
+            {
                 return null;
             }
 
-            var obj = (JObject) token;
-            var type = this.Prop(obj, "type", this.Type);
-            var name = this.Prop(obj, "name").Value<string>();
-            var signature = this.Prop(obj, "signature").Value<string>();
+            var obj = (JObject)token;
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var name = this.Prop(obj, _properties.Name).Value<string>();
+            var signature = this.Prop(obj, _properties.Signature).Value<string>();
 
             ConstructorInfo constructor;
             Dictionary<string, ConstructorInfo> cache2;
             Dictionary<string, Dictionary<string, ConstructorInfo>> cache1;
 
-            if (!ConstructorCache.TryGetValue(type, out cache1)) {
+            if (!ConstructorCache.TryGetValue(type, out cache1))
+            {
                 constructor = this.ConstructorInternal(type, name, signature);
-                
+
                 cache2 = new Dictionary<
                     string, ConstructorInfo>(1) {
                         {signature, constructor}
@@ -90,12 +95,13 @@ namespace Aq.ExpressionJsonSerializer
                         string, ConstructorInfo>>(1) {
                             {name, cache2}
                         };
-                
+
                 ConstructorCache[type] = cache1;
             }
-            else if (!cache1.TryGetValue(name, out cache2)) {
+            else if (!cache1.TryGetValue(name, out cache2))
+            {
                 constructor = this.ConstructorInternal(type, name, signature);
-                
+
                 cache2 = new Dictionary<
                     string, ConstructorInfo>(1) {
                         {signature, constructor}
@@ -103,7 +109,8 @@ namespace Aq.ExpressionJsonSerializer
 
                 cache1[name] = cache2;
             }
-            else if (!cache2.TryGetValue(signature, out constructor)) {
+            else if (!cache2.TryGetValue(signature, out constructor))
+            {
                 constructor = this.ConstructorInternal(type, name, signature);
                 cache2[signature] = constructor;
             }
@@ -117,13 +124,15 @@ namespace Aq.ExpressionJsonSerializer
             var constructor = type
                 .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
                 .FirstOrDefault(c => c.Name == name && c.ToString() == signature);
-            
-            if (constructor == null) {
+
+            if (constructor == null)
+            {
                 constructor = type
                     .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                     .FirstOrDefault(c => c.Name == name && c.ToString() == signature);
-                
-                if (constructor == null) {
+
+                if (constructor == null)
+                {
                     throw new Exception(
                         "Constructor for type \""
                         + type.FullName +
@@ -139,15 +148,16 @@ namespace Aq.ExpressionJsonSerializer
 
         private MethodInfo Method(JToken token)
         {
-            if (token == null || token.Type != JTokenType.Object) {
+            if (token == null || token.Type != JTokenType.Object)
+            {
                 return null;
             }
 
-            var obj = (JObject) token;
-            var type = this.Prop(obj, "type", this.Type);
-            var name = this.Prop(obj, "name").Value<string>();
-            var signature = this.Prop(obj, "signature").Value<string>();
-            var generic = this.Prop(obj, "generic", this.Enumerable(this.Type));
+            var obj = (JObject)token;
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var name = this.Prop(obj, _properties.Name).Value<string>();
+            var signature = this.Prop(obj, _properties.Signature).Value<string>();
+            var generic = this.Prop(obj, _properties.Generic, this.Enumerable(this.Type));
 
             var methods = type.GetMethods(
                 BindingFlags.Public | BindingFlags.NonPublic |
@@ -155,7 +165,8 @@ namespace Aq.ExpressionJsonSerializer
             );
             var method = methods.First(m => m.Name == name && m.ToString() == signature);
 
-            if (generic != null && method.IsGenericMethodDefinition) {
+            if (generic != null && method.IsGenericMethodDefinition)
+            {
                 method = method.MakeGenericMethod(generic.ToArray());
             }
 
@@ -164,14 +175,15 @@ namespace Aq.ExpressionJsonSerializer
 
         private PropertyInfo Property(JToken token)
         {
-            if (token == null || token.Type != JTokenType.Object) {
+            if (token == null || token.Type != JTokenType.Object)
+            {
                 return null;
             }
 
-            var obj = (JObject) token;
-            var type = this.Prop(obj, "type", this.Type);
-            var name = this.Prop(obj, "name").Value<string>();
-            var signature = this.Prop(obj, "signature").Value<string>();
+            var obj = (JObject)token;
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var name = this.Prop(obj, _properties.Name).Value<string>();
+            var signature = this.Prop(obj, _properties.Signature).Value<string>();
 
             var properties = type.GetProperties(
                 BindingFlags.Public | BindingFlags.NonPublic |
@@ -182,15 +194,16 @@ namespace Aq.ExpressionJsonSerializer
 
         private MemberInfo Member(JToken token)
         {
-            if (token == null || token.Type != JTokenType.Object) {
+            if (token == null || token.Type != JTokenType.Object)
+            {
                 return null;
             }
 
-            var obj = (JObject) token;
-            var type = this.Prop(obj, "type", this.Type);
-            var name = this.Prop(obj, "name").Value<string>();
-            var signature = this.Prop(obj, "signature").Value<string>();
-            var memberType = (MemberTypes) this.Prop(obj, "memberType").Value<int>();
+            var obj = (JObject)token;
+            var type = this.Prop(obj, _properties.Type, this.Type);
+            var name = this.Prop(obj, _properties.Name).Value<string>();
+            var signature = this.Prop(obj, _properties.Signature).Value<string>();
+            var memberType = (MemberTypes)this.Prop(obj, _properties.MemberType).Value<int>();
 
             var members = type.GetMembers(
                 BindingFlags.Public | BindingFlags.NonPublic |

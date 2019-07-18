@@ -10,9 +10,9 @@ namespace Aq.ExpressionJsonSerializer
         private MethodCallExpression MethodCallExpression(
             ExpressionType nodeType, System.Type type, JObject obj)
         {
-            var instance = this.Prop(obj, "object", this.Expression);
-            var method = this.Prop(obj, "method", this.Method);
-            var arguments = this.Prop(obj, "arguments", this.Enumerable(this.Expression));
+            var instance = this.Prop(obj, _properties.Object, this.Expression);
+            var method = this.Prop(obj, _properties.Method, this.Method);
+            var arguments = this.Prop(obj, _properties.Arguments, this.Enumerable(this.Expression));
 
             switch (nodeType) {
                 case ExpressionType.ArrayIndex:

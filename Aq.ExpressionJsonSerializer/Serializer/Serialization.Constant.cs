@@ -9,17 +9,17 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as ConstantExpression;
             if (expression == null) { return false; }
 
-            this.Prop("typeName", "constant");
+            this.Prop(_properties.TypeName, "constant");
             if (expression.Value == null) {
-                this.Prop("value", () => this._writer.WriteNull());
+                this.Prop(_properties.Value, () => this._writer.WriteNull());
             }
             else {
                 var value = expression.Value;
                 var type = value.GetType();
-                this.Prop("value", () => {
+                this.Prop(_properties.Value, () => {
                     this._writer.WriteStartObject();
-                    this.Prop("type", this.Type(type));
-                    this.Prop("value", this.Serialize(value, type));
+                    this.Prop(_properties.Type, this.Type(type));
+                    this.Prop(_properties.Value, this.Serialize(value, type));
                     this._writer.WriteEndObject();
                 });
             }
