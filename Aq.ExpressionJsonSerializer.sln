@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aq.ExpressionJsonSerializer", "Aq.ExpressionJsonSerializer\Aq.ExpressionJsonSerializer.csproj", "{F6FD2AAC-7409-48A1-80C5-112CCAF4FA1A}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aq.ExpressionJsonSerializer", "Aq.ExpressionJsonSerializer\Aq.ExpressionJsonSerializer.csproj", "{F6FD2AAC-7409-48A1-80C5-112CCAF4FA1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aq.ExpressionJsonSerializer.Tests", "Aq.ExpressionJsonSerializer.Tests\Aq.ExpressionJsonSerializer.Tests.csproj", "{348525AE-72C1-4250-81D2-79D244856F7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aq.ExpressionJsonSerializer.Tests", "Aq.ExpressionJsonSerializer.Test\Aq.ExpressionJsonSerializer.Tests.csproj", "{98257E4E-4391-44E6-8FEA-8331B43221E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,12 +17,15 @@ Global
 		{F6FD2AAC-7409-48A1-80C5-112CCAF4FA1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6FD2AAC-7409-48A1-80C5-112CCAF4FA1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6FD2AAC-7409-48A1-80C5-112CCAF4FA1A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{348525AE-72C1-4250-81D2-79D244856F7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{348525AE-72C1-4250-81D2-79D244856F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{348525AE-72C1-4250-81D2-79D244856F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{348525AE-72C1-4250-81D2-79D244856F7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98257E4E-4391-44E6-8FEA-8331B43221E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98257E4E-4391-44E6-8FEA-8331B43221E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98257E4E-4391-44E6-8FEA-8331B43221E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98257E4E-4391-44E6-8FEA-8331B43221E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E579E7FD-CCD3-4849-95BF-9A743EBE4CCC}
 	EndGlobalSection
 EndGlobal

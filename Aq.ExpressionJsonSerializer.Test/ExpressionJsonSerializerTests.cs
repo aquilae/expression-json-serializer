@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
-namespace Aq.ExpressionJsonSerializer.Tests
+namespace Aq.ExpressionJsonSerializer.Test
 {
     [TestClass]
     public class ExpressionJsonSerializerTest
@@ -79,7 +79,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
         [TestMethod]
         public void DivisionWithCast()
         {
-            TestExpression((Expression<Func<Context, float>>) (c => (float) c.A / c.B));
+            TestExpression((Expression<Func<Context, float>>) (c => (float)c.A / c.B));
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
         [TestMethod]
         public void Lambda()
         {
-            TestExpression((Expression<Func<Context, int>>) (c => ((Func<Context, int>) (_ => _.A))(c)));
+            TestExpression((Expression<Func<Context, int>>) (c => ((Func<Context, int>) (_ => _.A)) (c)));
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
         [TestMethod]
         public void New()
         {
-            TestExpression((Expression<Func<Context, object>>) (c => new object()));    
+            TestExpression((Expression<Func<Context, object>>) (c => new object()));
         }
 
         [TestMethod]
@@ -187,7 +187,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
         [TestMethod]
         public void TypeOf()
         {
-            TestExpression((Expression<Func<Context, bool>>) (c => typeof (Context) == c.GetType()));
+            TestExpression((Expression<Func<Context, bool>>) (c => typeof(Context) == c.GetType()));
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
         [TestMethod]
         public void MethodResultCast()
         {
-            TestExpression((Expression<Func<Context, int>>) (c => (int) c.Method3()));
+            TestExpression((Expression<Func<Context, int>>) (c => (int)c.Method3()));
         }
 
         private sealed class Context
@@ -212,7 +212,8 @@ namespace Aq.ExpressionJsonSerializer.Tests
             {
                 get
                 {
-                    switch (key) {
+                    switch (key)
+                    {
                         case "A": return this.A;
                         case "B": return this.B;
                         case "C": return this.C ?? 0;
@@ -226,21 +227,30 @@ namespace Aq.ExpressionJsonSerializer.Tests
             public object Method3() { return this.A; }
         }
 
+        private static JsonSerializerSettings CreateSerializerSettings()
+        {
+            var settings = new JsonSerializerSettings();
+            settings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+            settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            return settings;
+        }
+
         private static void TestExpression(LambdaExpression source)
         {
             var random = new Random();
             int u;
-            var context = new Context {
+            var context = new Context
+            {
                 A = random.Next(),
                 B = random.Next(),
-                C = (u = random.Next(0, 2)) == 0 ? null : (int?) u,
+                C = (u = random.Next(0, 2)) == 0 ? null : (int?)u,
                 Array = new[] { random.Next() },
                 Func = () => u
             };
 
-            var settings = new JsonSerializerSettings();
+            var settings = CreateSerializerSettings();
             settings.Converters.Add(new ExpressionJsonConverter(
-                Assembly.GetAssembly(typeof (ExpressionJsonSerializerTest))
+                Assembly.GetAssembly(typeof(ExpressionJsonSerializerTest))
             ));
 
             var json = JsonConvert.SerializeObject(source, settings);
@@ -254,7 +264,7 @@ namespace Aq.ExpressionJsonSerializer.Tests
 
         private static string ExpressionResult(LambdaExpression expr, Context context)
         {
-            return JsonConvert.SerializeObject(expr.Compile().DynamicInvoke(context));
+            return JsonConvert.SerializeObject(expr.Compile().DynamicInvoke(context), CreateSerializerSettings());
         }
     }
 }
