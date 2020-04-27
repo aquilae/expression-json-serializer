@@ -10,7 +10,13 @@ namespace Aq.ExpressionJsonSerializer
             var expression = expr as GotoExpression;
             if (expression == null) { return false; }
 
-            throw new NotImplementedException();
+            this.Prop("typeName", "goto");
+            this.Prop("value", this.Expression(expression.Value));
+            this.Prop("kind", this.Enum(expression.Kind));
+            this.Prop("targetName", expression.Target.Name ?? "#" + expression.Target.GetHashCode());
+            this.Prop("targetType", this.Type(expression.Target.Type));
+
+            return true;
         }
     }
 }
