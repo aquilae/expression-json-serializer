@@ -264,7 +264,7 @@ namespace Aq.ExpressionJsonSerializer.Test
 
         private static string ExpressionResult(LambdaExpression expr, Context context)
         {
-            return JsonConvert.SerializeObject(expr.Compile().DynamicInvoke(context),CreateSerializerSettings());
+            return JsonConvert.SerializeObject(expr.Compile().DynamicInvoke(context), CreateSerializerSettings());
         }
     }
 }
