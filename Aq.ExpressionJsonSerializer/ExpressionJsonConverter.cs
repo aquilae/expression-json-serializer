@@ -1,5 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
+using Aq.ExpressionJsonSerializer.PreProcessor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -11,6 +13,7 @@ namespace Aq.ExpressionJsonSerializer
         private static readonly System.Type TypeOfExpression = typeof (Expression);
 
         private PropertyNames _properties;
+        private Assembly[] contractAssemblies;
 
         /// <summary>
         /// Set to true to use legacy style nested type serialisation.
@@ -29,6 +32,11 @@ namespace Aq.ExpressionJsonSerializer
         {
         }
 
+        public ExpressionJsonConverter(Assembly[] contractAssemblies)
+        {
+            this.contractAssemblies = contractAssemblies;
+        }
+
         public override bool CanConvert(System.Type objectType)
         {
             return objectType == TypeOfExpression
@@ -39,7 +47,19 @@ namespace Aq.ExpressionJsonSerializer
             JsonWriter writer, object value, JsonSerializer serializer)
         {
             InitProperties(serializer);
-            Serializer.Serialize(writer, serializer, _properties, (Expression)value, NestedTypeSerialization);
+            Expression expr = (Expression)value;
+            if(contractAssemblies != null && expr != null)
+            {
+                expr = RemoveLocalReferences(expr);
+            }
+
+            Serializer.Serialize(writer, serializer, _properties, expr, NestedTypeSerialization);
+        }
+
+        private Expression RemoveLocalReferences(Expression expr)
+        {
+            ProcessingVisitor visitor = new ProcessingVisitor(contractAssemblies);
+            return visitor.Visit(expr);
         }
 
         public override object ReadJson(

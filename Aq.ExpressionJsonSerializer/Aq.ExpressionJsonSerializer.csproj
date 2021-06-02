@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\Fundermatic\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -69,6 +69,7 @@
     <Compile Include="Deserializer\Deserializer.TypeBinaryExpression.cs" />
     <Compile Include="Deserializer\Deserializer.UnaryExpression.cs" />
     <Compile Include="ExpressionJsonConverter.cs" />
+    <Compile Include="PreProcessor\ProcessingVisitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyNames.cs" />
     <Compile Include="Serializer.cs" />

@@ -16,7 +16,7 @@ namespace Aq.ExpressionJsonSerializer
 
             switch (nodeType) {
                 case ExpressionType.Lambda:
-                    return Expr.Lambda(body, tailCall, parameters);
+                    return Expr.Lambda(type, body, tailCall, parameters);
                 default:
                     throw new NotSupportedException();
             }
