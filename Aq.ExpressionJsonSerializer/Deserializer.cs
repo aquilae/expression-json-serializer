@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
@@ -18,6 +17,7 @@ namespace Aq.ExpressionJsonSerializer
             return d.Expression(token);
         }
 
+        private readonly Dictionary<string, LabelTarget> _labelTargets = new Dictionary<string, LabelTarget>();
         private readonly JsonSerializer _serializer;
         private readonly PropertyNames _properties;
         private bool _nestedTypes;
@@ -35,9 +35,13 @@ namespace Aq.ExpressionJsonSerializer
             return token.ToObject(type);
         }
 
-        private T Prop<T>(JObject obj, string name, Func<JToken, T> result)
+        private T Prop<T>(JObject obj, string name, Func<JToken, T> result = null)
         {
             var prop = obj.Property(name);
+
+            if (result == null)
+                result = token => token != null ? token.Value<T>() : default(T);
+
             return result(prop == null ? null : prop.Value);
         }
 
@@ -101,6 +105,15 @@ namespace Aq.ExpressionJsonSerializer
                 case "unary":               return this.UnaryExpression(nodeType, type, obj);
             }
             throw new NotSupportedException();
+        }
+
+        private LabelTarget CreateLabelTarget(string name, Type type) {
+            if (_labelTargets.ContainsKey(name))
+                return _labelTargets[name];
+
+            _labelTargets[name] = System.Linq.Expressions.Expression.Label(type, name);
+
+            return _labelTargets[name];
         }
     }
 }
