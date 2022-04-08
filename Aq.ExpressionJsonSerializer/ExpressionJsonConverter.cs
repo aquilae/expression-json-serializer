@@ -7,7 +7,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace Aq.ExpressionJsonSerializer
-{
+{   
+    
     public class ExpressionJsonConverter : JsonConverter
     {
         private static readonly System.Type TypeOfExpression = typeof (Expression);
